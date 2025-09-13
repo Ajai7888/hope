@@ -174,6 +174,10 @@ class DashboardContent extends StatelessWidget {
                     reportId: doc.id,
                     description: data['description'] ?? 'No description',
                     status: data['status'] ?? 'new',
+                    imageUrl: data['imageUrl'],
+                    location:
+                        data['location'] ??
+                        'Administration Office, Chennai, India',
                   );
                 }).toList(),
               );
@@ -265,12 +269,16 @@ class IncidentCard extends StatelessWidget {
   final String reportId;
   final String description;
   final String status;
+  final String? imageUrl;
+  final String location;
 
   const IncidentCard({
     super.key,
     required this.reportId,
     required this.description,
     required this.status,
+    this.imageUrl,
+    required this.location,
   });
 
   Future<void> _updateStatus(String newStatus) async {
@@ -290,6 +298,33 @@ class IncidentCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (imageUrl != null && imageUrl!.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl!,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 180,
+                      width: double.infinity,
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+
             Text(
               description,
               style: const TextStyle(
@@ -298,7 +333,30 @@ class IncidentCard extends StatelessWidget {
                 color: Color(0xFF1B2A41),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                const Icon(
+                  Icons.location_on,
+                  size: 18,
+                  color: Colors.redAccent,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    location,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
             Text(
               "Status: $status",
               style: TextStyle(
@@ -348,6 +406,55 @@ class NGOVolunteersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Volunteers Page Content'));
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Active Volunteers',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1B2A41),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView(
+              children: const [
+                VolunteerCard(name: 'Ajai', area: 'Navalur'),
+                VolunteerCard(name: 'Eric', area: 'Kilambakkam'),
+                VolunteerCard(name: 'Nitya', area: 'Sholinganallur'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VolunteerCard extends StatelessWidget {
+  final String name;
+  final String area;
+
+  const VolunteerCard({super.key, required this.name, required this.area});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFF2E639A),
+          child: Icon(Icons.person, color: Colors.white),
+        ),
+        title: Text(name),
+        subtitle: Text(area),
+      ),
+    );
   }
 }
